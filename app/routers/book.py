@@ -6,7 +6,7 @@ from typing import Annotated
 
 from app.schemas import CreateBook, BookResponse
 from app.db.session import get_db
-from app.crud import create_book, get_one_book, get_all, update_book, delete_book
+from app.crud import create_book, get_one_book, get_all_books, update_book, delete_book
 
 
 router = APIRouter(prefix="/books", tags=["Books"])
@@ -20,7 +20,7 @@ async def create_book_endpoint(data: CreateBook, db: Annotated[AsyncSession, Dep
 
 @router.get("")
 async def get_all_endpoint(db: Annotated[AsyncSession, Depends(get_db)]) -> list[BookResponse]:
-    return await get_all(db)
+    return await get_all_books(db)
 
 
 @router.get("/{book_id}")

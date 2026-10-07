@@ -15,7 +15,7 @@ async def create_book(data_book: dict, db: AsyncSession)  -> BookModel:
     return book
 
 
-async def get_all(db: AsyncSession) -> list[BookModel]:
+async def get_all_books(db: AsyncSession) -> list[BookModel]:
     stmt = select(BookModel)
     result = await db.execute(stmt)
     books = result.scalars().all()

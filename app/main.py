@@ -6,7 +6,10 @@ from fastapi import FastAPI
 
 from app.db.session import engine
 from app.db.base import Base
-from app.routers import book_router
+from app.models import BookModel, AuthorModel
+
+
+from app.routers import book_router, author_router
 
 
 
@@ -22,6 +25,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 app.include_router(book_router)
+app.include_router(author_router)
 
 
 if __name__ == "__main__":

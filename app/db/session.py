@@ -13,5 +13,5 @@ session = async_sessionmaker(engine, autoflush=False, expire_on_commit=False)
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
-    async with setting.session() as conn:
-        yield conn
+    async with session() as db:
+        yield db
