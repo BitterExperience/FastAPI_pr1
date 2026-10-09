@@ -9,7 +9,7 @@ class AuthorModel(Base):
     __tablename__ = "authors"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(String(100))
+    name: Mapped[str] = mapped_column(String(100), unique=True)
     bio: Mapped[str | None] = mapped_column(String(1000))
 
     books: Mapped[list["BookModel"]] = relationship(back_populates="author", cascade="all, delete-orphan")

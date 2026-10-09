@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Path, HTTPException
+from fastapi import APIRouter, Depends, Path, HTTPException, status
 from typing import Annotated
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -13,9 +13,12 @@ router = APIRouter(prefix="/authors", tags=["Authors"])
 
 @router.post('', status_code=201) 
 async def create_author(data: CreateAuthor, db: Annotated[AsyncSession, Depends(get_db)]) -> AuthorResponse:
-    author = data.model_dump()
-    return await create_author_db(author, db)
-
+    try:
+        author = data.model_dump()
+        return await create_author_db(author, db)
+    except ValueError as err:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT,
+                            detail=str(err))
 
 @router.get('/{author_id}')
 async def get_author(author_id: Annotated[int, Path(ge=1)], db: Annotated[AsyncSession, Depends(get_db)]) -> AuthorResponse:
