@@ -1,12 +1,20 @@
 from pathlib import Path
-
 from pydantic_settings import BaseSettings
 
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
+BASE_PATH = Path(__file__).resolve().parent.parent.parent
 
 
 class Setting(BaseSettings):
-    DB_URL: str = f"sqlite+aiosqlite:///{BASE_DIR}/books.db"
+    SECRET_KEY: str
+    ALGORITHM: str
+    ACCESS_TOKEN_EXPIRE_MINUTES: int
 
+    @property
+    def db_url(self) -> str:
+        return f"sqlite+aiosqlite:///{BASE_PATH}/books.db"
+
+
+    class Config:
+        env_file = BASE_PATH / ".env"
 
 setting = Setting()

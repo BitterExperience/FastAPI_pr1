@@ -6,7 +6,7 @@ from typing import AsyncGenerator
 from app.core.config_db import setting
 
 
-engine = create_async_engine(setting.DB_URL, echo=True)
+engine = create_async_engine(setting.db_url, echo=True)
 
 session = async_sessionmaker(engine, autoflush=False, expire_on_commit=False)
 
