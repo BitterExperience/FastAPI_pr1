@@ -12,7 +12,7 @@ def create_access_token(data: dict) -> str:
     to_encode.update({"exp": expiration})
     return jwt.encode(to_encode, setting.SECRET_KEY, algorithm=setting.ALGORITHM)
 
-def decode_access_token(token: str) -> D:
+def decode_access_token(token: str) -> dict:
     try:
         payload = jwt.decode(token, setting.SECRET_KEY, algorithms=[setting.ALGORITHM])
         return payload
