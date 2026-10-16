@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Annotated
 
 from app.db.session import get_db
+from app.models.user import UserModel
 from app.schemas.user import UserCreate, UserResponse, Token
 from app.crud.user import create_user_db, read_user_by_username_db
 from app.security.dependencies import get_current_user
@@ -26,7 +27,7 @@ async def create_user(data: UserCreate, db: Annotated[AsyncSession, Depends(get_
 
 
 @router.post('/login')
-async def login_for_access_token(form_data: Annotated[OAuth2PasswordBearer, Depends()],
+async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
                                  db: Annotated[AsyncSession, Depends(get_db)]) -> Token:
 
      user = await read_user_by_username_db(form_data.username, db)
@@ -37,8 +38,8 @@ async def login_for_access_token(form_data: Annotated[OAuth2PasswordBearer, Depe
 
 
 
-@router.get("me/")
-async def read_users_me(current_user: Annotated[UserCreate, Depends(get_current_user)]) -> UserResponse:
+@router.get("/me")
+async def read_users_me(current_user: Annotated[UserModel, Depends(get_current_user)]) -> UserResponse:
     return current_user
 
 
