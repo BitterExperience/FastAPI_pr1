@@ -14,7 +14,7 @@ class UserResponse(BaseModel):
     username: str
     email: str
     is_active: bool
-    create_at: datetime
+    created_at: datetime
 
 
 class Token(BaseModel):
