@@ -3,7 +3,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
-from app.models import UserModel
+from app.models.user import UserModel
 from app.security.password import hash_password
 
 

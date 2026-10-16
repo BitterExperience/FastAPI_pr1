@@ -8,6 +8,7 @@ from app.crud.author import (create_author_db,
 from app.db.session import get_db
 from app.schemas.author import CreateAuthor, AuthorResponse
 
+
 router = APIRouter(prefix="/authors", tags=["Authors"])
 
 
