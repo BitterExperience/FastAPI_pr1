@@ -15,10 +15,10 @@ async def create_user_db(data: dict, db: AsyncSession) -> UserModel:
     if res_name:
         raise ValueError(f"User {data['username']} already exists")
 
-    stmt_email = select(UserModel).where(UserModel.email == data["email"])
-    exec_email = await db.execute(stmt_email)
-    res_email = exec_email.scalar_one_or_none()
-    if res_email:
+    stmt = select(UserModel).where(UserModel.email == data["email"])
+    exec = await db.execute(stmt)
+    res = exec.scalar_one_or_none()
+    if res:
         raise ValueError(f"Email {data['email']} already exists")
 
     data = data.copy()
@@ -53,3 +53,17 @@ async def read_user_by_username_db(username: str, db: AsyncSession) -> UserModel
     return result.scalar_one_or_none()
 
 
+async def delete_user_db(user: UserModel, db: AsyncSession) -> None:
+    await db.delete(user)
+    await db.commit()
+
+
+# async def delete_user_db(user_id: int, db: AsyncSession) -> bool:
+#     stmt = select(UserModel).where(UserModel.id == user_id)
+#     result = await db.execute(stmt)
+#     user = result.scalar_one_or_none()
+#     if user is None:
+#         return False
+#     await db.delete(user)
+#     await db.commit()
+#     return True
