@@ -1,19 +1,20 @@
+from typing import Annotated
 
 from fastapi import APIRouter, HTTPException, Depends, Path
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import Annotated
 
-
-from app.schemas import CreateBook, BookResponse
-from app.db.session import get_db
 from app.crud import create_book, get_one_book, get_all_books, update_book, delete_book
-
+from app.db.session import get_db
+from app.schemas import CreateBook, BookResponse
+from app.security.dependencies import get_current_user
+from app.models.user import UserModel
 
 router = APIRouter(prefix="/books", tags=["Books"])
 
 
 @router.post("", status_code=201)
-async def create_book_endpoint(data: CreateBook, db: Annotated[AsyncSession, Depends(get_db)])  -> BookResponse:
+async def create_book_endpoint(data: CreateBook, db: Annotated[AsyncSession, Depends(get_db)],
+                               _current_user: Annotated[UserModel, Depends(get_current_user)]) -> BookResponse:
     data_book = data.model_dump()
     return await create_book(data_book, db)
 
@@ -25,8 +26,7 @@ async def get_all_endpoint(db: Annotated[AsyncSession, Depends(get_db)]) -> list
 
 @router.get("/{book_id}")
 async def get_one_book_endpoint(book_id: Annotated[int, Path(ge=1)],
-                       db: Annotated[AsyncSession, Depends(get_db)]) -> BookResponse:
-
+                                db: Annotated[AsyncSession, Depends(get_db)]) -> BookResponse:
     book = await get_one_book(book_id, db)
 
     if book is None:
@@ -37,11 +37,10 @@ async def get_one_book_endpoint(book_id: Annotated[int, Path(ge=1)],
 
 @router.put("/{book_id}", status_code=200)
 async def update_book_endpoint(book_id: Annotated[int, Path(ge=1)],
-                      data: CreateBook,
-                      db: Annotated[AsyncSession, Depends(get_db)]) -> BookResponse:
-
+                               data: CreateBook,
+                               db: Annotated[AsyncSession, Depends(get_db)],
+                               _current_user: Annotated[UserModel, Depends(get_current_user)]) -> BookResponse:
     book_found = await get_one_book(book_id, db)
-
 
     if book_found is None:
         raise HTTPException(404, f"Book {book_id} not found")
@@ -52,10 +51,9 @@ async def update_book_endpoint(book_id: Annotated[int, Path(ge=1)],
 
 @router.delete("/{book_id}", status_code=204)
 async def delete_book_endpoint(book_id: Annotated[int, Path(ge=1)],
-                         db: Annotated[AsyncSession, Depends(get_db)]):
-
+                               db: Annotated[AsyncSession, Depends(get_db)],
+                               _current_user: Annotated[UserModel, Depends(get_current_user)]):
     book_found = await get_one_book(book_id, db)
-
 
     if book_found is None:
         raise HTTPException(404, f"Book {book_id} not found")

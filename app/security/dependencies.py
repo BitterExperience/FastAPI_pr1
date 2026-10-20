@@ -1,5 +1,5 @@
 from fastapi import Depends, HTTPException, status
-from fastapi.security  import OAuth2PasswordBearer
+from fastapi.security import OAuth2PasswordBearer
 from typing import Annotated
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.crud.user import read_user_by_id_db
@@ -15,11 +15,11 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_schema)],
     payload = decode_access_token(token)
 
     if payload is None:
-        raise HTTPException(status_code = status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
     try:
         user_id = int(payload.get("sub"))
     except (ValueError, TypeError) as err:
-       raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(err))
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(err))
     user = await read_user_by_id_db(user_id, db)
     if user is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
