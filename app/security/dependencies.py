@@ -18,9 +18,16 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_schema)],
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
     try:
         user_id = int(payload.get("sub"))
-    except (ValueError, TypeError) as err:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(err))
+    except (ValueError, TypeError):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token payload")
     user = await read_user_by_id_db(user_id, db)
     if user is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
     return user
+
+
+async def get_current_active_user(current_user: Annotated[UserModel, Depends(get_current_user)]) -> UserModel:
+    if not current_user.is_active:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                            detail="Inactive user")
+    return current_user

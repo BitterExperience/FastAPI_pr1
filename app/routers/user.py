@@ -7,7 +7,7 @@ from app.db.session import get_db
 from app.models.user import UserModel
 from app.schemas.user import UserCreate, UserResponse, Token
 from app.crud.user import create_user_db, read_user_by_username_db, delete_user_db
-from app.security.dependencies import get_current_user
+from app.security.dependencies import get_current_active_user
 from app.security.password import verify_password
 from app.security.jwt import create_access_token
 
@@ -37,13 +37,13 @@ async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm,
 
 
 @router.get("/me")
-async def read_users_me(current_user: Annotated[UserModel, Depends(get_current_user)]) -> UserResponse:
+async def read_users_me(current_user: Annotated[UserModel, Depends(get_current_active_user)]) -> UserResponse:
     return current_user
 
 
 @router.delete("/me", status_code=204)
 async def delete_me(
-    current_user: Annotated[UserModel, Depends(get_current_user)],
+    current_user: Annotated[UserModel, Depends(get_current_active_user)],
     db: Annotated[AsyncSession, Depends(get_db)]
 ):
     await delete_user_db(current_user, db)

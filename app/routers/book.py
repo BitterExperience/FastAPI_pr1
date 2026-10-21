@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.crud import create_book, get_one_book, get_all_books, update_book, delete_book
 from app.db.session import get_db
 from app.schemas import CreateBook, BookResponse
-from app.security.dependencies import get_current_user
+from app.security.dependencies import get_current_active_user
 from app.models.user import UserModel
 
 router = APIRouter(prefix="/books", tags=["Books"])
@@ -14,7 +14,7 @@ router = APIRouter(prefix="/books", tags=["Books"])
 
 @router.post("", status_code=201)
 async def create_book_endpoint(data: CreateBook, db: Annotated[AsyncSession, Depends(get_db)],
-                               _current_user: Annotated[UserModel, Depends(get_current_user)]) -> BookResponse:
+                               _current_user: Annotated[UserModel, Depends(get_current_active_user)]) -> BookResponse:
     data_book = data.model_dump()
     return await create_book(data_book, db)
 
@@ -39,7 +39,7 @@ async def get_one_book_endpoint(book_id: Annotated[int, Path(ge=1)],
 async def update_book_endpoint(book_id: Annotated[int, Path(ge=1)],
                                data: CreateBook,
                                db: Annotated[AsyncSession, Depends(get_db)],
-                               _current_user: Annotated[UserModel, Depends(get_current_user)]) -> BookResponse:
+                               _current_user: Annotated[UserModel, Depends(get_current_active_user)]) -> BookResponse:
     book_found = await get_one_book(book_id, db)
 
     if book_found is None:
@@ -52,7 +52,7 @@ async def update_book_endpoint(book_id: Annotated[int, Path(ge=1)],
 @router.delete("/{book_id}", status_code=204)
 async def delete_book_endpoint(book_id: Annotated[int, Path(ge=1)],
                                db: Annotated[AsyncSession, Depends(get_db)],
-                               _current_user: Annotated[UserModel, Depends(get_current_user)]):
+                               _current_user: Annotated[UserModel, Depends(get_current_active_user)]):
     book_found = await get_one_book(book_id, db)
 
     if book_found is None:
