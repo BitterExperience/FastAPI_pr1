@@ -6,8 +6,8 @@ from typing import Annotated
 from app.db.session import get_db
 from app.models.user import UserModel
 from app.schemas.user import UserCreate, UserResponse, Token
-from app.crud.user import create_user_db, read_user_by_username_db, delete_user_db
-from app.security.dependencies import get_current_active_user
+from app.crud.user import create_user_db, read_user_by_username_db, delete_user_db, read_user_by_id_db
+from app.security.dependencies import get_current_active_user, get_current_admin
 from app.security.password import verify_password
 from app.security.jwt import create_access_token
 
@@ -49,13 +49,12 @@ async def delete_me(
     await delete_user_db(current_user, db)
 
 
-# @router.delete("/{user_id}", status_code=204)
-# async def user_delete(user_id: int, db: Annotated[AsyncSession, Depends(get_db)]):
-#     user_find = await read_user_by_id_db(user_id, db)
-#     if user_find is None:
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-#
-#     await delete_user_by_id_db(user_id, db)
-#     return f"User {user_find.username} delete"
-
+@router.patch("/users/{user_id}/block", status_code=200)
+async def block_user(user_id: Annotated[int, Depends(get_current_admin)],
+                    db: Annotated[AsyncSession, Depends(get_db)]):
+    user = await read_user_by_id_db(user_id, db)
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    user.is_active = False
+    return f"{user.username} blocked"
 

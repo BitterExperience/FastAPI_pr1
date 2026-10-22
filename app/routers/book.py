@@ -46,7 +46,7 @@ async def update_book_endpoint(book_id: Annotated[int, Path(ge=1)],
     if book_found is None:
         raise HTTPException(404, f"Book {book_id} not found")
 
-    if book_found.created_by != current_user.id:
+    if book_found.created_by != current_user.id or current_user.role != "admin":
         raise HTTPException(403, f"You can only edit your own books")
 
     book_upd = await update_book(book_found, data.model_dump(), db)
@@ -62,7 +62,8 @@ async def delete_book_endpoint(book_id: Annotated[int, Path(ge=1)],
     if book_found is None:
         raise HTTPException(404, f"Book {book_id} not found")
 
-    if book_found.created_by != current_user.id:
-        raise HTTPException(403, f"You can only edit your own books")
+    if book_found.created_by != current_user.id and current_user.role != "admin":
+        raise HTTPException(403, f"Access denied")
 
     await delete_book(book_found, db)
+
