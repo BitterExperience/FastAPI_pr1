@@ -13,7 +13,10 @@ class BookModel(Base):
     description: Mapped[str | None] = mapped_column(String(1000))
     isbn: Mapped[str | None] = mapped_column(String(50))
     author_id: Mapped[int] = mapped_column(ForeignKey("authors.id", ondelete="CASCADE"))
+    created_by: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
 
-    author: Mapped["AuthorModel"] = relationship(back_populates='books')
+    author: Mapped["AuthorModel"] = relationship(back_populates="books")
+
+    creator: Mapped["UserModel"] = relationship(back_populates="books")
 
 

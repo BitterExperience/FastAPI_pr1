@@ -14,8 +14,9 @@ router = APIRouter(prefix="/books", tags=["Books"])
 
 @router.post("", status_code=201)
 async def create_book_endpoint(data: CreateBook, db: Annotated[AsyncSession, Depends(get_db)],
-                               _current_user: Annotated[UserModel, Depends(get_current_active_user)]) -> BookResponse:
+                               current_user: Annotated[UserModel, Depends(get_current_active_user)]) -> BookResponse:
     data_book = data.model_dump()
+    data_book["created_by"] = current_user.id
     return await create_book(data_book, db)
 
 
@@ -39,11 +40,14 @@ async def get_one_book_endpoint(book_id: Annotated[int, Path(ge=1)],
 async def update_book_endpoint(book_id: Annotated[int, Path(ge=1)],
                                data: CreateBook,
                                db: Annotated[AsyncSession, Depends(get_db)],
-                               _current_user: Annotated[UserModel, Depends(get_current_active_user)]) -> BookResponse:
+                               current_user: Annotated[UserModel, Depends(get_current_active_user)]) -> BookResponse:
     book_found = await get_one_book(book_id, db)
 
     if book_found is None:
         raise HTTPException(404, f"Book {book_id} not found")
+
+    if book_found.created_by != current_user.id:
+        raise HTTPException(403, f"You can only edit your own books")
 
     book_upd = await update_book(book_found, data.model_dump(), db)
     return book_upd
@@ -52,10 +56,13 @@ async def update_book_endpoint(book_id: Annotated[int, Path(ge=1)],
 @router.delete("/{book_id}", status_code=204)
 async def delete_book_endpoint(book_id: Annotated[int, Path(ge=1)],
                                db: Annotated[AsyncSession, Depends(get_db)],
-                               _current_user: Annotated[UserModel, Depends(get_current_active_user)]):
+                               current_user: Annotated[UserModel, Depends(get_current_active_user)]):
     book_found = await get_one_book(book_id, db)
 
     if book_found is None:
         raise HTTPException(404, f"Book {book_id} not found")
+
+    if book_found.created_by != current_user.id:
+        raise HTTPException(403, f"You can only edit your own books")
 
     await delete_book(book_found, db)

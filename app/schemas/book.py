@@ -26,4 +26,7 @@ class BookResponse(BaseModel):
     author_id: int
     price: float
     description: str | None = None
+    isbn: str | None = None
+    created_by: int | None
     author: AuthorBrief | None = None
+
