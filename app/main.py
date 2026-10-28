@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from app.db.session import engine
 
 
-from app.routers import book_router, author_router, user_router
+from app.routers import book_router, author_router, user_router, admin_router
 
 
 
@@ -22,6 +22,7 @@ app = FastAPI(lifespan=lifespan)
 app.include_router(book_router)
 app.include_router(author_router)
 app.include_router(user_router)
+app.include_router(admin_router)
 
 
 if __name__ == "__main__":

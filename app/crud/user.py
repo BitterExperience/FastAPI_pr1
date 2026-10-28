@@ -2,13 +2,11 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-
 from app.models.user import UserModel
 from app.security.password import hash_password
 
 
 async def create_user_db(data: dict, db: AsyncSession) -> UserModel:
-
     stmt_name = select(UserModel).where(UserModel.username == data["username"])
     exec_name = await db.execute(stmt_name)
     res_name = exec_name.scalar_one_or_none()
@@ -57,6 +55,21 @@ async def delete_user_db(user: UserModel, db: AsyncSession) -> None:
     await db.delete(user)
     await db.commit()
 
+
+async def read_all_users(skip, limit, db: AsyncSession) -> list[UserModel]:
+    stmt = select(UserModel).offset(skip).limit(limit)
+    result = await db.execute(stmt)
+    return result.scalars().all()
+
+
+async def update_user_db(user: UserModel, data: dict, db: AsyncSession) -> UserModel:
+    for key, val in data.items():
+        setattr(user, key, val)
+
+    await db.commit()
+    await db.refresh(user)
+
+    return user
 
 # async def delete_user_db(user_id: int, db: AsyncSession) -> bool:
 #     stmt = select(UserModel).where(UserModel.id == user_id)
