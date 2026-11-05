@@ -9,4 +9,4 @@ def hash_password(password: str) -> str:
 
 
 def verify_password(plain: str, hashed: str) -> bool:
-    return "Good" if pwd_context.verify(plain, hashed) else "bad"
+    return pwd_context.verify(plain, hashed)

@@ -1,14 +1,17 @@
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
+from pathlib import Path
 
 from app.main import app
 from app.db.base import Base
 from app.db.session import get_db
 from app.models.user import UserModel
 from app.security.password import hash_password
+BASE_PATH = Path(__file__).resolve().parent.parent.parent
 
-TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
+
+TEST_DATABASE_URL = f"sqlite+aiosqlite:///{BASE_PATH}/test_books.db"
 test_engine = create_async_engine(TEST_DATABASE_URL)
 TestSessionLocal = async_sessionmaker(test_engine, expire_on_commit=False)
 
@@ -39,7 +42,7 @@ async def client(test_db):
 
 
 @pytest.fixture
-async def test_user(client) -> UserModel:
+async def test_user(client):
     response = client.post("/users/register",
                            json={"username": "testuser",
                                  "email": "user@example.com",
@@ -51,7 +54,7 @@ async def test_user(client) -> UserModel:
 
 
 @pytest.fixture
-async def auth_client(client):
+async def auth_client(client, test_user):
     response = client.post("/users/login",
                            data= {"username": test_user["username"],
                                   "password": test_user["password"]})

@@ -16,7 +16,7 @@ from app.security.jwt import create_access_token
 router = APIRouter(prefix="/users", tags=["Users"])
 
 
-@router.post('/register')
+@router.post('/register', status_code=201)
 async def create_user(data: UserCreate, db: Annotated[AsyncSession, Depends(get_db)]) -> UserResponse:
     try:
         user = data.model_dump()
