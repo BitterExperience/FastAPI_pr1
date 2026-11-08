@@ -1,3 +1,4 @@
+
 def test_register_success(client):
     response = client.post("/users/register",
                            json={
