@@ -36,5 +36,5 @@ async def get_current_active_user(current_user: Annotated[UserModel, Depends(get
 async def get_current_admin(current_user: Annotated[UserModel, Depends(get_current_active_user)]) -> UserModel:
     if current_user.role != "admin":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
-                            detail="Inactive user")
+                            detail="Admin privileges required")
     return current_user
