@@ -49,12 +49,12 @@ async def delete_me(
     await delete_user_db(current_user, db)
 
 
-@router.patch("/users/{user_id}/block", status_code=200)
-async def block_user(user_id: Annotated[int, Depends(get_current_admin)],
-                    db: Annotated[AsyncSession, Depends(get_db)]):
-    user = await read_user_by_id_db(user_id, db)
-    if user is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-    user.is_active = False
-    return f"{user.username} blocked"
+# @router.patch("/users/{user_id}/block", status_code=200)
+# async def block_user(user_id: Annotated[int, Depends(get_current_admin)],
+#                     db: Annotated[AsyncSession, Depends(get_db)]):
+#     user = await read_user_by_id_db(user_id, db)
+#     if user is None:
+#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+#     user.is_active = False
+#     return f"{user.username} blocked"
 
