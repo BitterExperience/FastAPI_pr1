@@ -8,6 +8,7 @@ from app.db.base import Base
 from app.db.session import get_db
 from app.models.user import UserModel
 from app.security.password import hash_password
+
 BASE_PATH = Path(__file__).resolve().parent.parent.parent
 
 
@@ -43,10 +44,14 @@ async def client(test_db):
 
 @pytest.fixture
 async def test_user(client):
-    response = client.post("/users/register",
-                           json={"username": "testuser",
-                                 "email": "user@example.com",
-                                 "password": "secret123"})
+    response = client.post(
+        "/users/register",
+        json={
+            "username": "testuser",
+            "email": "user@example.com",
+            "password": "secret123",
+        },
+    )
     assert response.status_code == 201
     user_data = response.json()
     user_data["password"] = "secret123"
@@ -55,10 +60,33 @@ async def test_user(client):
 
 @pytest.fixture
 async def auth_client(client, test_user):
-    response = client.post("/users/login",
-                           data= {"username": test_user["username"],
-                                  "password": test_user["password"]})
+    response = client.post(
+        "/users/login",
+        data={"username": test_user["username"], "password": test_user["password"]},
+    )
     assert response.status_code == 200
     token = response.json()["access_token"]
     client.headers["Authorization"] = f"Bearer {token}"
     return client
+
+
+@pytest.fixture
+async def create_author(auth_client):
+    response = auth_client.post("/authors",
+
+                json = {"name": "Лев Толстой",
+                        "bio": " Русский классик"}
+                )
+    assert response.status_code == 201
+    return response
+
+
+@pytest.fixture
+async def create_book(auth_client, create_author):
+    assert create_author.status_code == 201
+    author_id = create_author.json()["id"]
+    response_create_book = auth_client.post(
+        "/books", json={"title": "Война и мир", "author_id": author_id, "price": 1000.0}
+    )
+    assert response_create_book.status_code == 201
+    return response_create_book
