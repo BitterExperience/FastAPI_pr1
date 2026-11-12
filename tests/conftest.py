@@ -50,7 +50,7 @@ async def test_user(client):
             "username": "testuser",
             "email": "user@example.com",
             "password": "secret123",
-        },
+        }
     )
     assert response.status_code == 201
     user_data = response.json()
@@ -90,3 +90,28 @@ async def create_book(auth_client, create_author):
     )
     assert response_create_book.status_code == 201
     return response_create_book
+
+
+@pytest.fixture
+async def admin_client(client, test_db):
+    reg = client.post("/users/register",
+            json={
+                "username": "testadmin",
+                "email": "testadmin@example.com",
+                "password": "secret456"
+        })
+    assert reg.status_code == 201
+
+    from app.crud.user import read_user_by_username_db, update_user_db
+    async with TestSessionLocal() as session:
+        user = await read_user_by_username_db("testadmin", session)
+        await update_user_db(user, {"role": "admin"}, session)
+
+    login = client.post(
+        "/users/login",
+        data={"username": "testadmin", "password": "secret456"},
+    )
+    assert login.status_code == 200
+    token = login.json()["access_token"]
+    client.headers["Authorization"] = f"Bearer {token}"
+    return client
