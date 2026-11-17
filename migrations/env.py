@@ -1,5 +1,5 @@
 import asyncio
-from logging.config import fileConfig
+from app.middleware.logging import fileConfig
 
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
@@ -9,7 +9,6 @@ from alembic import context
 
 from app.core import setting
 from app.db import Base
-from app.models import AuthorModel, BookModel
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

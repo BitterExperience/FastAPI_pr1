@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Annotated
@@ -10,17 +10,22 @@ from app.crud.user import create_user_db, read_user_by_username_db, delete_user_
 from app.security.dependencies import get_current_active_user, get_current_admin
 from app.security.password import verify_password
 from app.security.jwt import create_access_token
-
+from app.services.email import send_welcome_email
 
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
 
 @router.post('/register', status_code=201)
-async def create_user(data: UserCreate, db: Annotated[AsyncSession, Depends(get_db)]) -> UserResponse:
+async def create_user(data: UserCreate,
+                      background_task: BackgroundTasks,
+                      db: Annotated[AsyncSession, Depends(get_db)]) -> UserResponse:
     try:
-        user = data.model_dump()
-        return await create_user_db(user, db)
+        user_data = data.model_dump()
+        user = await create_user_db(user_data, db)
+        background_task.add_task(send_welcome_email,user.email, user.username)
+        return user
+
     except ValueError as err:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(err))
 
