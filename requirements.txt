@@ -16,6 +16,7 @@ cryptography==50.0.2
 dnspython==2.8.0
 ecdsa==0.19.2
 email-validator==2.3.0
+fakeredis==2.40.0
 fastapi==0.141.1
 greenlet==3.5.6
 h11==0.16.0
@@ -46,9 +47,11 @@ python-dotenv==1.2.3
 python-jose==3.5.0
 python-multipart==0.0.32
 pytokens==0.4.1
+redis==8.1.0
 requests==2.34.2
 rsa==4.9.1
 six==1.17.0
+sortedcontainers==2.4.0
 SQLAlchemy==2.0.53
 starlette==1.6.0
 typing-inspection==0.4.4

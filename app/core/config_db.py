@@ -10,6 +10,8 @@ class Setting(BaseSettings):
     SECRET_KEY: str
     ALGORITHM: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
+    REDIS_URL: str = "redis://localhost:6379/0"
+    CACHE_TTL_BOOKS: int = 60
 
     @property
     def db_url(self) -> str:
