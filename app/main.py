@@ -13,7 +13,7 @@ from app.core.config_db import setting
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    app.state.radis = Redis.from_url(setting.REDIS_URL, decode_responses=True)
+    app.state.redis = Redis.from_url(setting.REDIS_URL, decode_responses=True)
     yield
     await app.state.redis.aclose()
     await engine.dispose()

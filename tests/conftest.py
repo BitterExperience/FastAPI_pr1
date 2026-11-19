@@ -2,19 +2,42 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 from pathlib import Path
+import fakeredis
+import pytest_asyncio
 
 from app.main import app
 from app.db.base import Base
 from app.db.session import get_db
 from app.models.user import UserModel
 from app.security.password import hash_password
+from app.core.redis import get_redis
 
 BASE_PATH = Path(__file__).resolve().parent.parent.parent
-
 
 TEST_DATABASE_URL = f"sqlite+aiosqlite:///{BASE_PATH}/test_books.db"
 test_engine = create_async_engine(TEST_DATABASE_URL)
 TestSessionLocal = async_sessionmaker(test_engine, expire_on_commit=False)
+
+
+@pytest_asyncio.fixture
+async def fake_redis():
+    client = fakeredis.FakeAsyncRedis(decode_responses=True)
+    yield client
+    await client.aclose()
+
+
+@pytest_asyncio.fixture
+async def client_redis(test_db, fake_redis):
+    async def override_get_db():
+        yield test_db
+
+    app.dependency_overrides[get_db] = override_get_db
+    app.dependency_overrides[get_redis] = lambda: fake_redis
+
+    with TestClient(app) as test_client:
+        yield test_client
+
+    app.dependency_overrides.clear()
 
 
 @pytest.fixture
@@ -30,11 +53,12 @@ async def test_db():
 
 
 @pytest.fixture
-async def client(test_db):
+async def client(test_db, fake_redis):
     async def override_get_db():
         yield test_db
 
     app.dependency_overrides[get_db] = override_get_db
+    app.dependency_overrides[get_redis] = lambda: fake_redis
 
     with TestClient(app) as test_client:
         yield test_client
@@ -74,9 +98,9 @@ async def auth_client(client, test_user):
 async def create_author(auth_client):
     response = auth_client.post("/authors",
 
-                json = {"name": "Лев Толстой",
-                        "bio": " Русский классик"}
-                )
+                                json={"name": "Лев Толстой",
+                                      "bio": " Русский классик"}
+                                )
     assert response.status_code == 201
     return response
 
@@ -95,11 +119,11 @@ async def create_book(auth_client, create_author):
 @pytest.fixture
 async def admin_client(client, test_db):
     reg = client.post("/users/register",
-            json={
-                "username": "testadmin",
-                "email": "testadmin@example.com",
-                "password": "secret456"
-        })
+                      json={
+                          "username": "testadmin",
+                          "email": "testadmin@example.com",
+                          "password": "secret456"
+                      })
     assert reg.status_code == 201
 
     from app.crud.user import read_user_by_username_db, update_user_db
