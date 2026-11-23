@@ -24,16 +24,16 @@ async def test_cache_hit(create_author, create_book, auth_client, fake_redis,
     print("cache2", cached2)
 
 
-async def test_cache_invalidation(client, fake_redis, test_db, create_author, create_book):
+async def test_cache_invalidation(auth_client, fake_redis, test_db, create_author, create_book):
     assert create_author.status_code == 201
     assert create_book.status_code == 201
-    response = client.get("books")
+    response = auth_client.get("/books")
     assert response.status_code == 200
     cache = await fake_redis.get("books:all")
     assert cache is not None
     id_author = create_author.json()["id"]
     print("cache", cache)
-    new_post = client.post("/books", json={"title": "New_book",
+    new_post = auth_client.post("/books", json={"title": "New_book",
                                            "author_id": id_author,
                                            "price": 350
                                            })
@@ -43,10 +43,7 @@ async def test_cache_invalidation(client, fake_redis, test_db, create_author, cr
     assert cache_none is None
 
 
-
-
-
-async def test_cache_fallback(client, fake_redis, create_author, create_book, monkeypatch):
+async def test_cache_fallback(auth_client, fake_redis, create_author, create_book, monkeypatch):
     assert create_author.status_code == 201
     assert create_book.status_code == 201
 
@@ -55,6 +52,6 @@ async def test_cache_fallback(client, fake_redis, create_author, create_book, mo
 
     monkeypatch.setattr(fake_redis, "get", async_raise)
 
-    response = client.get("/books")
+    response = auth_client.get("/books")
     assert response.status_code == 200
     assert len(response.json()) == 1
