@@ -14,7 +14,7 @@ from app.core.redis import get_redis
 from app.core.config_db import setting
 from app.services.cache import get_or_set, invalidate_all_books, invalidate_book
 
-router = APIRouter(prefix="/books", tags=["Books"])
+router = APIRouter(tags=["Books"])
 
 
 @router.post("", status_code=201)

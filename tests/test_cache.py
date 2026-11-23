@@ -8,7 +8,7 @@ async def test_cache_hit(create_author, create_book, auth_client, fake_redis,
                          ):
     assert create_author.status_code == 201
     assert create_book.status_code == 201
-    response1 = auth_client.get("/books")
+    response1 = auth_client.get("/api/v1/books")
     assert response1.status_code == 200
     cached1 = await fake_redis.get("books:all")
     print("response1", response1.json())
@@ -16,7 +16,7 @@ async def test_cache_hit(create_author, create_book, auth_client, fake_redis,
     print(len(response1.json()))
     await test_db.execute(delete(BookModel))
     await test_db.commit()
-    response2 = auth_client.get("/books")
+    response2 = auth_client.get("/api/v1/books")
     assert response2.status_code == 200
     cached2 = await fake_redis.get("books:all")
     print(len(response2.json()))
@@ -27,13 +27,13 @@ async def test_cache_hit(create_author, create_book, auth_client, fake_redis,
 async def test_cache_invalidation(auth_client, fake_redis, test_db, create_author, create_book):
     assert create_author.status_code == 201
     assert create_book.status_code == 201
-    response = auth_client.get("/books")
+    response = auth_client.get("/api/v1/books")
     assert response.status_code == 200
     cache = await fake_redis.get("books:all")
     assert cache is not None
     id_author = create_author.json()["id"]
     print("cache", cache)
-    new_post = auth_client.post("/books", json={"title": "New_book",
+    new_post = auth_client.post("/api/v1/books", json={"title": "New_book",
                                            "author_id": id_author,
                                            "price": 350
                                            })
@@ -52,6 +52,6 @@ async def test_cache_fallback(auth_client, fake_redis, create_author, create_boo
 
     monkeypatch.setattr(fake_redis, "get", async_raise)
 
-    response = auth_client.get("/books")
+    response = auth_client.get("/api/v1/books")
     assert response.status_code == 200
     assert len(response.json()) == 1

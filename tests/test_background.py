@@ -2,8 +2,8 @@ from unittest.mock import patch
 
 
 def test_register_mock(client):
-    with patch("app.routers.user.send_welcome_email") as mock_send:
-        response = client.post("/users/register",
+    with patch("app.api.v1.routers.user.send_welcome_email") as mock_send:
+        response = client.post("/api/v1/users/register",
                            json={
                                "username": "testuser2",
                                "email": "user_test2@example.com",

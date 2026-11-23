@@ -13,7 +13,7 @@ from app.security.jwt import create_access_token
 from app.services.email import send_welcome_email
 
 
-router = APIRouter(prefix="/users", tags=["Users"])
+router = APIRouter(tags=["Users"])
 
 
 @router.post('/register', status_code=201)

@@ -10,7 +10,7 @@ from app.schemas.author import CreateAuthor, AuthorResponse
 from app.security.dependencies import get_current_active_user
 from app.models.user import UserModel
 
-router = APIRouter(prefix="/authors", tags=["Authors"])
+router = APIRouter(tags=["Authors"])
 
 
 @router.post('', status_code=201)

@@ -9,7 +9,7 @@ from app.db.session import get_db
 
 from app.crud.user import read_user_by_id_db, delete_user_db, read_all_users, update_user_db
 
-router = APIRouter(prefix="/admin", tags=["Admin"])
+router = APIRouter(tags=["Admin"])
 
 
 @router.get("/users", status_code=200)

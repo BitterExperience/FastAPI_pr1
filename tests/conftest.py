@@ -69,7 +69,7 @@ async def client(test_db, fake_redis):
 @pytest.fixture
 async def test_user(client):
     response = client.post(
-        "/users/register",
+        "/api/v1/users/register",
         json={
             "username": "testuser",
             "email": "user@example.com",
@@ -85,7 +85,7 @@ async def test_user(client):
 @pytest.fixture
 async def auth_client(client, test_user):
     response = client.post(
-        "/users/login",
+        "/api/v1/users/login",
         data={"username": test_user["username"], "password": test_user["password"]},
     )
     assert response.status_code == 200
@@ -96,7 +96,7 @@ async def auth_client(client, test_user):
 
 @pytest.fixture
 async def create_author(auth_client):
-    response = auth_client.post("/authors",
+    response = auth_client.post("/api/v1/authors",
 
                                 json={"name": "Лев Толстой",
                                       "bio": " Русский классик"}
@@ -110,7 +110,7 @@ async def create_book(auth_client, create_author):
     assert create_author.status_code == 201
     author_id = create_author.json()["id"]
     response_create_book = auth_client.post(
-        "/books", json={"title": "Война и мир", "author_id": author_id, "price": 1000.0}
+        "/api/v1/books", json={"title": "Война и мир", "author_id": author_id, "price": 1000.0}
     )
     assert response_create_book.status_code == 201
     return response_create_book
@@ -118,7 +118,7 @@ async def create_book(auth_client, create_author):
 
 @pytest.fixture
 async def admin_client(client, test_db):
-    reg = client.post("/users/register",
+    reg = client.post("/api/v1/users/register",
                       json={
                           "username": "testadmin",
                           "email": "testadmin@example.com",
@@ -132,7 +132,7 @@ async def admin_client(client, test_db):
         await update_user_db(user, {"role": "admin"}, session)
 
     login = client.post(
-        "/users/login",
+        "/api/v1/users/login",
         data={"username": "testadmin", "password": "secret456"},
     )
     assert login.status_code == 200

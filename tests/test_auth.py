@@ -1,6 +1,6 @@
 
 def test_register_success(client):
-    response = client.post("/users/register",
+    response = client.post("/api/v1/users/register",
                            json={
                                "username": "new_user",
                                "email": "new_email@example.com",
@@ -13,7 +13,7 @@ def test_register_success(client):
 
 
 def test_register_duplicate_username(client, test_user):
-    response = client.post("/users/register",
+    response = client.post("/api/v1/users/register",
                            json={
                                "username": "testuser",
                                "email": "user@example.com",
@@ -23,7 +23,7 @@ def test_register_duplicate_username(client, test_user):
 
 
 def test_login_success(client, test_user):
-    response = client.post("/users/login",
+    response = client.post("/api/v1/users/login",
                            data={
                                "username": test_user["username"],
                                "password": test_user["password"]
@@ -34,7 +34,7 @@ def test_login_success(client, test_user):
 
 
 def test_login_wrong_password(client, test_user):
-    response = client.post("/users/login",
+    response = client.post("/api/v1/users/login",
                            data={
                                "username": test_user["username"],
                                "password": "incorrect"
