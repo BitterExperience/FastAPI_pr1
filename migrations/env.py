@@ -1,5 +1,5 @@
 import asyncio
-from app.middleware.logging import fileConfig
+from logging.config import fileConfig
 
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
@@ -13,7 +13,7 @@ from app.db import Base
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
-config.set_main_option("sqlalchemy.url", setting.db_url)
+config.set_main_option("sqlalchemy.url", setting.DATABASE_URL)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

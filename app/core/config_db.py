@@ -12,10 +12,11 @@ class Setting(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int
     REDIS_URL: str = "redis://localhost:6379/0"
     CACHE_TTL_BOOKS: int = 60
+    DATABASE_URL: str = f"sqlite+aiosqlite:///{BASE_PATH}/books.db"
 
-    @property
-    def db_url(self) -> str:
-        return f"sqlite+aiosqlite:///{BASE_PATH}/books.db"
+    # @property
+    # def db_url(self) -> str:
+    #     return self.DATABASE_URL
 
 
 setting = Setting()
